@@ -7,13 +7,10 @@ class BFDamageMenu {
     console.log(`${BFDamageMenu.MODULE_NAME} | Initializing`);
 
     Hooks.on("getChatMessageContextOptions", (message, entries) => {
-      // Guard: must be a damage roll in the Black Flag system
-      if (message.getFlag("black-flag", "roll.type") !== "damage") return;
-
       // Guard: must have tokens selected on the canvas
       if (!canvas.tokens?.controlled.length) return;
 
-      // Guard: must have damage rolls to apply
+      // Guard: must have rolls with numeric totals to apply
       const damages = BFDamageMenu._extractDamages(message);
       if (!damages.length) return;
 
@@ -50,22 +47,40 @@ class BFDamageMenu {
   /* -------------------------------------------------- */
 
   /**
-   * Extract damage descriptions from a chat message's rolls.
-   * Mirrors BlackFlagChatMessage._renderDamageUI pattern.
+   * Extract damage values from a chat message's rolls.
+   * Works with Black Flag DamageRoll instances AND core Foundry Roll instances
+   * (e.g., /r 1d8 or /r 4d6). Returns aggregated damage descriptions.
    * @param {ChatMessage} message
    * @returns {DamageDescription[]}
    */
   static _extractDamages(message) {
-    const damageRolls = message.rolls.filter(r => r instanceof CONFIG.Dice.DamageRoll);
-    if (!damageRolls.length) return [];
+    const rolls = message.rolls;
+    if (!rolls?.length) return [];
 
-    const aggregated = aggregateDamageRolls(damageRolls, { respectProperties: true });
-    return aggregated.map(roll => ({
-      magical: roll.options.magical === true,
-      rollType: message.getFlag("black-flag", "roll.type") ?? "damage",
-      type: roll.options.damageType,
-      value: roll.total
-    }));
+    // Try BF's DamageRoll first (respects damage types, magical, resistance properties)
+    const damageRolls = rolls.filter(r => r instanceof CONFIG.Dice.DamageRoll);
+    if (damageRolls.length) {
+      const aggregated = aggregateDamageRolls(damageRolls, { respectProperties: true });
+      return aggregated.map(roll => ({
+        magical: roll.options.magical === true,
+        rollType: message.getFlag("black-flag", "roll.type") ?? "damage",
+        type: roll.options.damageType,
+        value: roll.total
+      }));
+    }
+
+    // Fallback: any core Foundry Roll with a numeric total (e.g., /r 1d8, /r 4d6)
+    const numericRolls = rolls.filter(r => r instanceof Roll && typeof r.total === "number");
+    if (!numericRolls.length) return [];
+
+    // Sum all numeric rolls into a single untyped damage value
+    const total = numericRolls.reduce((sum, r) => sum + r.total, 0);
+    return [{
+      magical: false,
+      rollType: "damage",
+      type: undefined,
+      value: total
+    }];
   }
 
   /* -------------------------------------------------- */
@@ -80,9 +95,6 @@ class BFDamageMenu {
     if (!damages.length) return;
 
     const options = { multiplier, isDelta: true };
-    if (message.flags["black-flag"]?.originatingMessage) {
-      options.originatingMessage = message;
-    }
 
     for (const token of canvas.tokens.controlled) {
       if (!token.actor?.isOwner) continue;
