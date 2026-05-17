@@ -2,14 +2,17 @@ class BFDamageMenu {
   static MODULE_NAME = "bf-damage-menu";
 
   static init() {
-    console.log(`${BFDamageMenu.MODULE_NAME} | Initializing`);
+    console.log(`${BFDamageMenu.MODULE_NAME} | init START`);
 
+    // --- Hook 1: renderChatMessage (known working in v13) ---
+    Hooks.on("renderChatMessage", (message, html, data) => {
+      console.log(`${BFDamageMenu.MODULE_NAME} | renderChatMessage FIRED | type=${message.type}`);
+    });
+
+    // --- Hook 2: getChatMessageContextOptions ---
     Hooks.on("getChatMessageContextOptions", (app, options) => {
-      console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED | tokens selected:`, canvas.tokens?.controlled.length ?? 0);
-
-      // Guard: must have tokens selected on the canvas
+      console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED | tokens=${canvas.tokens?.controlled?.length ?? "N/A"}`);
       if (!canvas.tokens?.controlled.length) return;
-
       options.push(
         {
           name: "BFDM.Damage.Apply",
@@ -40,9 +43,15 @@ class BFDamageMenu {
           callback: li => BFDamageMenu._applyFromLi(li, 2)
         }
       );
-
-      console.log(`${BFDamageMenu.MODULE_NAME} | Pushed 4 menu items. Total options:`, options.length);
+      console.log(`${BFDamageMenu.MODULE_NAME} | Pushed 4 items, total options=${options.length}`);
     });
+
+    // --- DIRECT TEST: call the hook ourselves to prove registration ---
+    console.log(`${BFDamageMenu.MODULE_NAME} | Direct test: calling Hooks.callAll("getChatMessageContextOptions")`);
+    Hooks.callAll("getChatMessageContextOptions", {constructor:{name:"TestApp"}}, []);
+    console.log(`${BFDamageMenu.MODULE_NAME} | Direct test DONE`);
+
+    console.log(`${BFDamageMenu.MODULE_NAME} | init COMPLETE`);
   }
 
   /* -------------------------------------------------- */
