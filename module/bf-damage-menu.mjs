@@ -4,12 +4,13 @@ class BFDamageMenu {
   static init() {
     console.log(`${BFDamageMenu.MODULE_NAME} | Initializing`);
 
-    // v13 signature: (app, menuItems) — app is the ChatLog, menuItems is the array to push into
-    Hooks.on("getChatMessageContextOptions", (app, menuItems) => {
+    Hooks.on("getChatMessageContextOptions", (app, options) => {
+      console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED | tokens selected:`, canvas.tokens?.controlled.length ?? 0);
+
       // Guard: must have tokens selected on the canvas
       if (!canvas.tokens?.controlled.length) return;
 
-      menuItems.push(
+      options.push(
         {
           name: "BFDM.Damage.Apply",
           icon: '<i class="fa-solid fa-heart-crack"></i>',
@@ -39,6 +40,8 @@ class BFDamageMenu {
           callback: li => BFDamageMenu._applyFromLi(li, 2)
         }
       );
+
+      console.log(`${BFDamageMenu.MODULE_NAME} | Pushed 4 menu items. Total options:`, options.length);
     });
   }
 
