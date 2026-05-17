@@ -4,13 +4,10 @@ class BFDamageMenu {
   static init() {
     console.log(`${BFDamageMenu.MODULE_NAME} | init START`);
 
-    // renderChatMessage diagnostic
     Hooks.on("renderChatMessage", (message, html, data) => {
       console.log(`${BFDamageMenu.MODULE_NAME} | renderChatMessage FIRED | type=${message.type}`);
     });
 
-    // getChatMessageContextOptions fires ONCE during ChatLog init — push items unconditionally.
-    // condition callbacks run per-right-click, deciding whether each item is shown.
     Hooks.on("getChatMessageContextOptions", (app, options) => {
       console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED`);
 
@@ -54,10 +51,20 @@ class BFDamageMenu {
   /* -------------------------------------------------- */
 
   static _canApply(li) {
-    if (!canvas.tokens?.controlled.length) return false;
+    console.log(`${BFDamageMenu.MODULE_NAME} | _canApply called | messageId=${li.dataset.messageId}`);
+    if (!canvas.tokens?.controlled.length) {
+      console.log(`${BFDamageMenu.MODULE_NAME} | _canApply → false (no tokens selected)`);
+      return false;
+    }
     const message = game.messages.get(li.dataset.messageId);
-    if (!message) return false;
-    return BFDamageMenu._extractDamages(message).length > 0;
+    if (!message) {
+      console.log(`${BFDamageMenu.MODULE_NAME} | _canApply → false (message not found)`);
+      return false;
+    }
+    console.log(`${BFDamageMenu.MODULE_NAME} | message type=${message.type}, rolls=${message.rolls?.length ?? 0}, flags=`, message.flags);
+    const result = BFDamageMenu._extractDamages(message).length > 0;
+    console.log(`${BFDamageMenu.MODULE_NAME} | _canApply → ${result}`);
+    return result;
   }
 
   /* -------------------------------------------------- */
@@ -73,11 +80,14 @@ class BFDamageMenu {
   static _extractDamages(message) {
     try {
       const rolls = message.rolls;
+      console.log(`${BFDamageMenu.MODULE_NAME} | _extractDamages: rolls count=${rolls?.length ?? 0}, CONFIG.Dice.DamageRoll=${!!CONFIG.Dice?.DamageRoll}`);
       if (!rolls?.length) return [];
       if (CONFIG.Dice?.DamageRoll) {
         const damageRolls = rolls.filter(r => r instanceof CONFIG.Dice.DamageRoll);
+        console.log(`${BFDamageMenu.MODULE_NAME} | DamageRoll filter: ${damageRolls.length}/${rolls.length} pass`);
         if (damageRolls.length) {
           const aggregated = aggregateDamageRolls(damageRolls, { respectProperties: true });
+          console.log(`${BFDamageMenu.MODULE_NAME} | Aggregated: ${aggregated.length} damages`);
           return aggregated.map(roll => ({
             magical: roll.options.magical === true,
             rollType: message.getFlag("black-flag", "roll.type") ?? "damage",
@@ -87,6 +97,7 @@ class BFDamageMenu {
         }
       }
       const numericRolls = rolls.filter(r => r instanceof Roll && typeof r.total === "number");
+      console.log(`${BFDamageMenu.MODULE_NAME} | Numeric roll filter: ${numericRolls.length}/${rolls.length} pass`);
       if (!numericRolls.length) return [];
       const total = numericRolls.reduce((sum, r) => sum + r.total, 0);
       return [{ magical: false, rollType: "damage", type: undefined, value: total }];
