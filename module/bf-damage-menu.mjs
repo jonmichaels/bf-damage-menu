@@ -86,7 +86,7 @@ class BFDamageMenu {
         const damageRolls = rolls.filter(r => r instanceof CONFIG.Dice.DamageRoll);
         console.log(`${BFDamageMenu.MODULE_NAME} | DamageRoll filter: ${damageRolls.length}/${rolls.length} pass`);
         if (damageRolls.length) {
-          const aggregated = aggregateDamageRolls(damageRolls, { respectProperties: true });
+          const aggregated = CONFIG.BlackFlag.aggregateDamageRolls(damageRolls, { respectProperties: true });
           console.log(`${BFDamageMenu.MODULE_NAME} | Aggregated: ${aggregated.length} damages`);
           return aggregated.map(roll => ({
             magical: roll.options.magical === true,
