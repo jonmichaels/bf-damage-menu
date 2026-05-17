@@ -86,14 +86,15 @@ class BFDamageMenu {
         const damageRolls = rolls.filter(r => r instanceof CONFIG.Dice.DamageRoll);
         console.log(`${BFDamageMenu.MODULE_NAME} | DamageRoll filter: ${damageRolls.length}/${rolls.length} pass`);
         if (damageRolls.length) {
-          const aggregated = CONFIG.BlackFlag.aggregateDamageRolls(damageRolls, { respectProperties: true });
-          console.log(`${BFDamageMenu.MODULE_NAME} | Aggregated: ${aggregated.length} damages`);
-          return aggregated.map(roll => ({
+          // Extract damages directly from roll instances — no need for aggregateDamageRolls
+          const damages = damageRolls.map(roll => ({
             magical: roll.options.magical === true,
             rollType: message.getFlag("black-flag", "roll.type") ?? "damage",
             type: roll.options.damageType,
             value: roll.total
           }));
+          console.log(`${BFDamageMenu.MODULE_NAME} | Extracted ${damages.length} damages directly:`, damages.map(d => `${d.value} ${d.type ?? "untyped"}`));
+          return damages;
         }
       }
       const numericRolls = rolls.filter(r => r instanceof Roll && typeof r.total === "number");
