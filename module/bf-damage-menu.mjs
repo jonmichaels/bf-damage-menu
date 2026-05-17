@@ -6,16 +6,22 @@ class BFDamageMenu {
   static init() {
     console.log(`${BFDamageMenu.MODULE_NAME} | Initializing`);
 
-    Hooks.on("getChatMessageContextOptions", (message, entries) => {
+    Hooks.on("getChatMessageContextOptions", (html, options) => {
+      const li = html[0] || html;
+      const messageId = li.dataset?.messageId;
+      if (!messageId) return;
+
+      const message = game.messages.get(messageId);
+      if (!message) return;
+
       // Guard: must have tokens selected on the canvas
       if (!canvas.tokens?.controlled.length) return;
 
-      // Guard: must have rolls with numeric totals to apply
+      // Guard: must have applicable rolls
       const damages = BFDamageMenu._extractDamages(message);
       if (!damages.length) return;
 
-      // Add menu entries
-      entries.push(
+      options.push(
         {
           name: "BFDM.Damage.Apply",
           icon: '<i class="fa-solid fa-heart-crack"></i>',
@@ -50,8 +56,6 @@ class BFDamageMenu {
    * Extract damage values from a chat message's rolls.
    * Works with Black Flag DamageRoll instances AND core Foundry Roll instances
    * (e.g., /r 1d8 or /r 4d6). Returns aggregated damage descriptions.
-   * @param {ChatMessage} message
-   * @returns {DamageDescription[]}
    */
   static _extractDamages(message) {
     const rolls = message.rolls;
@@ -73,7 +77,6 @@ class BFDamageMenu {
     const numericRolls = rolls.filter(r => r instanceof Roll && typeof r.total === "number");
     if (!numericRolls.length) return [];
 
-    // Sum all numeric rolls into a single untyped damage value
     const total = numericRolls.reduce((sum, r) => sum + r.total, 0);
     return [{
       magical: false,
@@ -87,8 +90,6 @@ class BFDamageMenu {
 
   /**
    * Apply damage from a chat message to all controlled tokens.
-   * @param {ChatMessage} message
-   * @param {number} multiplier   1 = damage, -1 = healing, 0.5 = half, 2 = double
    */
   static async _applyDamage(message, multiplier) {
     const damages = BFDamageMenu._extractDamages(message);
