@@ -4,15 +4,16 @@ class BFDamageMenu {
   static init() {
     console.log(`${BFDamageMenu.MODULE_NAME} | init START`);
 
-    // --- Hook 1: renderChatMessage (known working in v13) ---
+    // renderChatMessage diagnostic
     Hooks.on("renderChatMessage", (message, html, data) => {
       console.log(`${BFDamageMenu.MODULE_NAME} | renderChatMessage FIRED | type=${message.type}`);
     });
 
-    // --- Hook 2: getChatMessageContextOptions ---
+    // getChatMessageContextOptions fires ONCE during ChatLog init — push items unconditionally.
+    // condition callbacks run per-right-click, deciding whether each item is shown.
     Hooks.on("getChatMessageContextOptions", (app, options) => {
-      console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED | tokens=${canvas.tokens?.controlled?.length ?? "N/A"}`);
-      if (!canvas.tokens?.controlled.length) return;
+      console.log(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED`);
+
       options.push(
         {
           name: "BFDM.Damage.Apply",
@@ -43,13 +44,9 @@ class BFDamageMenu {
           callback: li => BFDamageMenu._applyFromLi(li, 2)
         }
       );
-      console.log(`${BFDamageMenu.MODULE_NAME} | Pushed 4 items, total options=${options.length}`);
-    });
 
-    // --- DIRECT TEST: call the hook ourselves to prove registration ---
-    console.log(`${BFDamageMenu.MODULE_NAME} | Direct test: calling Hooks.callAll("getChatMessageContextOptions")`);
-    Hooks.callAll("getChatMessageContextOptions", {constructor:{name:"TestApp"}}, []);
-    console.log(`${BFDamageMenu.MODULE_NAME} | Direct test DONE`);
+      console.log(`${BFDamageMenu.MODULE_NAME} | Pushed 4 items, total=${options.length}`);
+    });
 
     console.log(`${BFDamageMenu.MODULE_NAME} | init COMPLETE`);
   }
