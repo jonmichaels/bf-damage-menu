@@ -4,23 +4,62 @@ class BFDamageMenu {
   static init() {
     console.log(`${BFDamageMenu.MODULE_NAME} | Initializing`);
 
-    // Test 1: Does renderChatMessage work? (we know it does from RetroAdvBF)
-    Hooks.on("renderChatMessage", (message, html) => {
-      console.debug(`${BFDamageMenu.MODULE_NAME} | renderChatMessage fired | type=${message.type}`);
-    });
+    // v13 signature: (app, menuItems) — app is the ChatLog, menuItems is the array to push into
+    Hooks.on("getChatMessageContextOptions", (app, menuItems) => {
+      // Guard: must have tokens selected on the canvas
+      if (!canvas.tokens?.controlled.length) return;
 
-    // Test 2: Does getChatMessageContextOptions fire?
-    Hooks.on("getChatMessageContextOptions", (html, options) => {
-      console.debug(`${BFDamageMenu.MODULE_NAME} | getChatMessageContextOptions FIRED`);
-      console.debug(`${BFDamageMenu.MODULE_NAME} | html type:`, typeof html, html);
-      console.debug(`${BFDamageMenu.MODULE_NAME} | options:`, options);
-    });
-
-    // Test 3: Maybe the hook name changed in v13?
-    Hooks.on("getChatLogEntryContext", (html, options) => {
-      console.debug(`${BFDamageMenu.MODULE_NAME} | getChatLogEntryContext FIRED`);
+      menuItems.push(
+        {
+          name: "BFDM.Damage.Apply",
+          icon: '<i class="fa-solid fa-heart-crack"></i>',
+          group: "damage",
+          condition: li => BFDamageMenu._canApply(li),
+          callback: li => BFDamageMenu._applyFromLi(li, 1)
+        },
+        {
+          name: "BFDM.Damage.Healing",
+          icon: '<i class="fa-solid fa-heart-circle-plus"></i>',
+          group: "damage",
+          condition: li => BFDamageMenu._canApply(li),
+          callback: li => BFDamageMenu._applyFromLi(li, -1)
+        },
+        {
+          name: "BFDM.Damage.Half",
+          icon: '<i class="fa-solid fa-heart-circle-minus"></i>',
+          group: "damage",
+          condition: li => BFDamageMenu._canApply(li),
+          callback: li => BFDamageMenu._applyFromLi(li, 0.5)
+        },
+        {
+          name: "BFDM.Damage.Double",
+          icon: '<i class="fa-solid fa-skull"></i>',
+          group: "damage",
+          condition: li => BFDamageMenu._canApply(li),
+          callback: li => BFDamageMenu._applyFromLi(li, 2)
+        }
+      );
     });
   }
+
+  /* -------------------------------------------------- */
+
+  static _canApply(li) {
+    if (!canvas.tokens?.controlled.length) return false;
+    const message = game.messages.get(li.dataset.messageId);
+    if (!message) return false;
+    return BFDamageMenu._extractDamages(message).length > 0;
+  }
+
+  /* -------------------------------------------------- */
+
+  static async _applyFromLi(li, multiplier) {
+    const message = game.messages.get(li.dataset.messageId);
+    if (!message) return;
+    await BFDamageMenu._applyDamage(message, multiplier);
+  }
+
+  /* -------------------------------------------------- */
 
   static _extractDamages(message) {
     try {
@@ -47,6 +86,8 @@ class BFDamageMenu {
       return [];
     }
   }
+
+  /* -------------------------------------------------- */
 
   static async _applyDamage(message, multiplier) {
     const damages = BFDamageMenu._extractDamages(message);
