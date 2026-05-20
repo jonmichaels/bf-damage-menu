@@ -12,6 +12,8 @@ Works with:
 - **D&D 5E** damage cards (via DamageRoll detection)
 - **Generic `/r` rolls** (e.g., `/r d20`, `/r 1d8`, `/r 4d6`)
 
+![Screenshot of the Damage Context Menu in action](screenshot1.webp)
+
 ## Installation
 
 1. Go to **Add-on Modules** → **Install Module**
