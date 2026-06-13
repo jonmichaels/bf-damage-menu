@@ -4,36 +4,28 @@ class BFDamageMenu {
   static init() {
     Hooks.on("getChatMessageContextOptions", (app, options) => {
       options.push(
-        {
-          name: "BFDM.Damage.Apply",
-          icon: '<i class="fa-solid fa-heart-crack"></i>',
-          group: "damage",
-          condition: li => BFDamageMenu._canApply(li),
-          callback: li => BFDamageMenu._applyFromLi(li, 1)
-        },
-        {
-          name: "BFDM.Damage.Healing",
-          icon: '<i class="fa-solid fa-heart-circle-plus"></i>',
-          group: "damage",
-          condition: li => BFDamageMenu._canApply(li),
-          callback: li => BFDamageMenu._applyFromLi(li, -1)
-        },
-        {
-          name: "BFDM.Damage.Half",
-          icon: '<i class="fa-solid fa-heart-circle-minus"></i>',
-          group: "damage",
-          condition: li => BFDamageMenu._canApply(li),
-          callback: li => BFDamageMenu._applyFromLi(li, 0.5)
-        },
-        {
-          name: "BFDM.Damage.Double",
-          icon: '<i class="fa-solid fa-skull"></i>',
-          group: "damage",
-          condition: li => BFDamageMenu._canApply(li),
-          callback: li => BFDamageMenu._applyFromLi(li, 2)
-        }
+        BFDamageMenu._contextMenuEntry("BFDM.Damage.Apply", '<i class="fa-solid fa-heart-crack"></i>', 1),
+        BFDamageMenu._contextMenuEntry("BFDM.Damage.Healing", '<i class="fa-solid fa-heart-circle-plus"></i>', -1),
+        BFDamageMenu._contextMenuEntry("BFDM.Damage.Half", '<i class="fa-solid fa-heart-circle-minus"></i>', 0.5),
+        BFDamageMenu._contextMenuEntry("BFDM.Damage.Double", '<i class="fa-solid fa-skull"></i>', 2)
       );
     });
+  }
+
+  /* -------------------------------------------------- */
+
+  static _contextMenuEntry(label, icon, multiplier) {
+    const entry = { icon, group: "damage" };
+    if ( game.release?.generation >= 14 ) {
+      entry.label = label;
+      entry.visible = target => BFDamageMenu._canApply(target);
+      entry.onClick = (event, target) => BFDamageMenu._applyFromLi(target, multiplier);
+    } else {
+      entry.name = label;
+      entry.condition = li => BFDamageMenu._canApply(li);
+      entry.callback = li => BFDamageMenu._applyFromLi(li, multiplier);
+    }
+    return entry;
   }
 
   /* -------------------------------------------------- */
