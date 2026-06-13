@@ -2,7 +2,7 @@
   "id": "bf-damage-menu",
   "title": "Damage Context Menu — Black Flag / Tales of the Valiant (ToV)",
   "description": "Right-click context menu to apply damage, healing, half damage, or double damage from any roll chat card to selected tokens. Works with Black Flag damage cards, D&D 5E damage cards, and generic /r rolls (e.g., /r d20, /r 4d6).",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "authors": [
     {
       "name": "Jon Michaels",
@@ -12,7 +12,7 @@
   ],
   "compatibility": {
     "minimum": "13",
-    "verified": "13"
+    "verified": "14"
   },
   "relationships": {
     "systems": [
@@ -20,7 +20,8 @@
         "id": "black-flag",
         "type": "system",
         "compatibility": {
-          "minimum": "2.0.0"
+          "minimum": "2.0.0",
+          "verified": "3"
         }
       }
     ]

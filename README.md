@@ -2,13 +2,15 @@
 
 > **⚠️ Disclaimer:** This module was created by an AI coding agent (Hephaestus, via Hermes Agent) under the direction of Jon Michaels. While tested and functional, users should verify behavior in their own games before relying on it in critical sessions.
 
-[![Foundry VTT](https://img.shields.io/badge/Foundry-v13-orange)](https://foundryvtt.com)
-[![Black Flag](https://img.shields.io/badge/System-Black%20Flag%20%2F%20ToV-blue)](https://github.com/koboldpress/black-flag)
+[![Foundry VTT](https://img.shields.io/badge/Foundry-v13%20%7C%20v14-orange)](https://foundryvtt.com)
+[![Black Flag](https://img.shields.io/badge/Black%20Flag-v2%20%7C%20v3-blue)](https://github.com/koboldpress/black-flag)
+[![Version](https://img.shields.io/badge/Version-1.0.1-green)](https://github.com/jonmichaels/bf-damage-menu/releases/tag/v1.0.1)
 
 Adds a right-click context menu to any roll chat card with numeric results, allowing the GM to apply the value as damage, healing, half damage, or double damage to selected tokens on the canvas.
 
 Works with:
-- **Black Flag / ToV** damage cards (respects damage types, magical properties)
+- **Black Flag / ToV v2 and v3** damage cards (respects damage types, magical properties)
+- **Foundry VTT v13 and v14**
 - **D&D 5E** damage cards (via DamageRoll detection)
 - **Generic `/r` rolls** (e.g., `/r d20`, `/r 1d8`, `/r 4d6`)
 
@@ -22,8 +24,12 @@ Works with:
 
 ## Requirements
 
-- **Foundry VTT** v13+
-- **Black Flag Roleplaying** (Tales of the Valiant) system v2.0+ (required dependency)
+- **Foundry VTT** v13 or v14
+- **Black Flag Roleplaying** (Tales of the Valiant) system v2 or v3 (required dependency)
+
+## Version
+
+Current release: **v1.0.1**
 
 ## Usage
 
