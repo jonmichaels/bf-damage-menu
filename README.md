@@ -9,9 +9,7 @@
 Adds a right-click context menu to any roll chat card with numeric results, allowing the GM to apply the value as damage, healing, half damage, or double damage to selected tokens on the canvas.
 
 Works with:
-- **Black Flag / ToV v2 and v3** damage cards (respects damage types, magical properties)
-- **Foundry VTT v13 and v14**
-- **D&D 5E** damage cards (via DamageRoll detection)
+- **Black Flag / ToV** damage cards (respects damage types, magical properties)
 - **Generic `/r` rolls** (e.g., `/r d20`, `/r 1d8`, `/r 4d6`)
 
 ![Screenshot of the Damage Context Menu in action](screenshot1.webp)
@@ -25,7 +23,7 @@ Works with:
 ## Requirements
 
 - **Foundry VTT** v13 or v14
-- **Black Flag Roleplaying** (Tales of the Valiant) system v2 or v3 (required dependency)
+- **Black Flag Roleplaying** (Tales of the Valiant) system v2 or v3
 
 ## Version
 
